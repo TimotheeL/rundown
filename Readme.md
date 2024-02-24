@@ -1,3 +1,5 @@
+# Rundown
+
 Rundown is a concise, flexible and human readable language to describe running workouts. Running is the only sport currently supported by rundown, although a lot of what can be written in rundown can probably apply to other sports, such as cycling or swimming.
 
 ## Motivation
