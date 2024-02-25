@@ -6,7 +6,7 @@ Rundown is a lightweight, flexible and human readable running workout descriptio
 
 A rundown workout is a single `UTF-8` string of text including all information relevant to a training session. Unless stated otherwise, everything in a workout is **case sensitive**.
 
-A workout is made-up of **sections**. Each section in a workout is separated by a semicolon `;`. A workout can consist of a single section, in which case no semicolon is required.
+A workout is made up of **sections**. Each section in a workout is separated by a semicolon `;`. A workout can consist of a single section, in which case no semicolon is required.
 
 *Example*
 
@@ -22,28 +22,64 @@ The above workout is made of 3 sections:
 
 ## Section
 
-A section is made up of **components**. There are 4 types of components: **Action**, **metadata**, **target** and **recovery**. These components must always appear in this order, but none of them are mandatory. The **main component** is the one that appears first. A section can have as little as one component. **Target** is the only type of component that can **not** be used as the main component of a section.
+A section is made of **components**. There are 4 types of components: **Action**, **metadata**, **target** and **recovery**. These components must always appear in this order, but none of them are mandatory. The **main component** of a section is the one that appears first. A section can have as little as one component. **Target** is the only type of component that can **not** be used as the main component of a section.
 
-Components can be separated by whitespaces or commas. By convention, the **recovery** component is usually the only one separated from the rest of the workout by a comma.
+Components can be separated by whitespaces or commas. By convention, the **recovery** component is usually the only one separated from the other components by a comma.
 
-*Example*
+*Example 1*
 
 ```
 10 x 400m track @(75-80)s, R=2mn
 ```
 
-- Action: `10 x 400m`
+- Action (main component): `10 x 400m`
 - Metadata: `track`
 - Target: `@(75-80)s`
 - Recovery: `R=2mn`
 
+*Example 2*
+
+```
+warmup @5:30/km
+```
+
+- Action : no action component
+- Metadata : `warmup`
+- Target : `@5:30/km`
+- Recovery: no recovery component
+
 ## Action Component
+
+The action component is the component that is usually used to indicate the number and duration of repetitions in a workout. 
+
+### Fixed Number of Reps
+
+The simplest action component that can be definied is a time or distance, optionally multiplied:
+
+```
+n x {time-or-distance}
+```
+
+With `n` an integer.
+
+> **_NOTE:_**  For available time and distance units and formatting, see **Time and Distance**.
+
+*Examples*
+
+```
+15mn
+3 x 1km
+4 x 5mn
+```
+
+### Nested Segment
 
 TODO
 
+
 ## Metadata Component
 
-The **metadata** component is typically a keyword that provides relevant information about a section (e.g whether it is to be run on track or on hills). It is rarely used as the main component of a section. When (and only when) used as the main component, a multiplier can be used:
+The metadata component is typically a keyword that provides relevant information about a section (e.g whether it is to be run on track or on hills). It is rarely used as the main component of a section. When (and only when) used as the main component, a multiplier can be used:
 
 ```
 n x keyword
@@ -79,6 +115,7 @@ Since metadata is only here for the benefit of the runner, rundown is not concer
 | `steady`         |
 | `strides`        |
 | `tempo`          |
+| `threshold`      |
 | `track`          |
 | `uphill`         |
 | `warmup`, `WU`   |
@@ -101,7 +138,7 @@ Targets are identified with the `@` character and are optional. In practice, the
 
 Reads as "at 7:10 minutes per mile pace"
 
-> **_NOTE:_**  For available time and distance units and formatting, see **Time and Distance**.
+> **_NOTE:_**  For available time and distance units and formatting, see **Time and Distance**.  **Fully qualified distance units** are not supported in target components
 
 ### Application
 
@@ -117,22 +154,24 @@ The target component for the above section is `@MP`, however a target (`@VO2max`
 
 ### Available Targets
 
-| Target | Description |
-| ---- | ---- |
-| `{heartrate}bpm` | Heartrate, in beats per minute, e.g `150bpm` |
-| `LT1` | Lactate threshold 1 |
-| `LT2` | Lactate threshold 2 |
-| `Z{zone}` | Heart rate zone, where `{zone}` is a digit, e.g `Z4`* |
-| `VO2max` | Velocity at maximal oxygen uptake |
-| `MP` | Marathon race pace |
-| `HMP` | Half-Marathon race pace |
-| `{distance}P` | Given distance race pace. For example: `10kmP`, `5kP`, `5MP`, `400mP` |
-| `{time}` | Time for each rep, e.g `45s`, `1mn` |
-| `tempo` | Tempo pace (somewhere between `10kP` and `HMP`) |
-| `{time}/{distance}` | Running pace, e.g `4mn/km`, `5:00/k`, `7mn10/M` |
-| `{distance}/{time}` | Running speed, e.g `16km/h` |
-| `{power}W` | Running power, in Watt,. e.g `400W` |
-| `{steps}spm` | Running cadence, in steps per minute, e.g `180spm` |
+| Target                 | Description                                                           |
+| ---------------------- | --------------------------------------------------------------------- |
+| `{heartrate}bpm`       | Heartrate, in beats per minute, e.g `150bpm`                          |
+| `LT1`                  | Lactate threshold 1                                                   |
+| `LT2`                  | Lactate threshold 2                                                   |
+| `Z{zone}`              | Heart rate zone, where `{zone}` is a digit, e.g `Z4`*                 |
+| `VO2max`               | Velocity at maximal oxygen uptake                                     |
+| `MP`                   | Marathon race pace                                                    |
+| `HMP`                  | Half-Marathon race pace                                               |
+| `{distance}P`          | Given distance race pace. For example: `10kmP`, `5kP`, `5MP`, `400mP` |
+| `{time}`               | Time for each rep, e.g `45s`, `1mn`                                   |
+| `tempo`                | Tempo pace (somewhere between `10kP` and `HMP`)                       |
+| `{time}/{distance}`    | Running pace, e.g `4mn/km`, `5:00/k`, `7mn10/M`                       |
+| `gap{time}/{distance}` | Grade adjusted pace, e.g `gap4:00/km`, `gap6mn/M`                     |
+| `{distance}/{time}`    | Running speed, e.g `16km/h`                                           |
+| `{power}W`             | Running power, in Watt,. e.g `400W`                                   |
+| `{steps}spm`           | Running cadence, in steps per minute, e.g `180spm`                    |
+| `rpe{rate}`            | Rate of perceived exertion. `rate` is an integer between 1 and 10.    |
 \* There are different heart rate zone models. Rundown is not concerned with which one the runner uses. This interpretation is left to the runner, or to the developer if they have access to this information.
 
 ### Ranges and Progressions
@@ -169,7 +208,14 @@ The above example can therefore be re-written as follows, which is more concise 
 @(4:40-4:20)/km
 ```
 
-Other examples:
+Grade adjusted pace and rate of perceived exertion can also be extracted, as per the following examples
+
+```
+@rpe(7-9)          # between RPE 7 and 9
+@gap(4:20-4:25)/km # between 4:20 and 4:25 grade adjusted pace
+```
+
+*Other examples*
 
 ```
 @(60-70)s           # between 60 and 70 seconds per rep
@@ -194,6 +240,7 @@ Progressions can be used to indicate that reps are to be run progressively, from
 ```
 
 *Example*
+
 ```
 @4:40/km>4:20/km
 ```
@@ -479,7 +526,7 @@ Distance is simply represented with an integer or a floating point number follow
 
 Constructs such as `1km400m` are not valid. 
 
-Rundown also allows fully qualifying available distance units (see **Available Distance Units**), in which case a space separating the distance and the unit is required. Fully qualified units are **case insensitive**.
+Rundown also allows fully qualifying available distance units (see **Available Distance Units**), in which case a space separating the distance and the unit is required. Fully qualified units are **case insensitive**. It is **not** possible to use fully qualified units with **Target Components**.
 
 *Examples*
 
