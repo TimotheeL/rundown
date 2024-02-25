@@ -18,6 +18,10 @@ By providing an easy to read, standard but also flexible format for running work
 
 The specs for rundown can be found [here](obsidian://open?vault=rundown&file=Specs).
 
+## Version
+
+This is a first draft. Any feedback is welcome!
+
 ## Examples
 
 Here are a few valid rundown workout examples:
