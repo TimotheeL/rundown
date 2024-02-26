@@ -16,7 +16,7 @@ By providing an easy to read, standard but also flexible format for running work
 
 ## Specifications
 
-The specs for rundown can be found [here](obsidian://open?vault=rundown&file=Specs).
+The specs for rundown can be found [here](https://github.com/TimotheeL/rundown/blob/main/Specs.md).
 
 ## Version
 
