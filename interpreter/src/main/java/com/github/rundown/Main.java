@@ -9,7 +9,7 @@ import java.util.List;
 public class Main {
 
   public static void main(String[] args) {
-    String input = "3 x 9km, R=5mn";
+    String input = "3 x 2km, R=5mn";
     Lexer lexer = new Lexer();
     List<Token> tokens = lexer.lex(input);
     WorkoutParser parser = new WorkoutParser(tokens);

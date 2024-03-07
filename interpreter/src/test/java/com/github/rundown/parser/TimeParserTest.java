@@ -45,6 +45,7 @@ public class TimeParserTest {
             0
         ));
   }
+
   @Test
   void canParseMinute() {
     // given
@@ -82,7 +83,7 @@ public class TimeParserTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"02h3mn", "6mn6s", "2h02mn2s", "01h1"})
+  @ValueSource(strings = {"02h3mn", "6mn6s", "2h02mn2s", "01h1", "01:1", "1:", "01:01:01:01", "01:000"})
   void throwsOnInvalidTimes(String input) {
     // given
     List<Token> tokens = lexer.lex(input);
@@ -94,7 +95,7 @@ public class TimeParserTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"2h03mn", "6mn06s", "2h02mn02s", "01h01", "1'09", "7'", "1mn"})
+  @ValueSource(strings = {"2h03mn", "123h", "120mn10s", "6mn06s", "2h02mn02s", "01h01", "1'09", "7'", "1mn"})
   void canParseValidTimes(String input) {
     // given
     List<Token> tokens = lexer.lex(input);
@@ -103,5 +104,33 @@ public class TimeParserTest {
     // when
     // then - no exception
     parser.time();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"1:02:03", "01:02:03"})
+  void canParseTimeWithoutUnits_hours(String input) {
+    // given
+    List<Token> tokens = lexer.lex(input);
+    TimeParser parser = new TimeParser(tokens);
+
+    // when
+    Time time = parser.time();
+
+    // then
+    assertThat(time).isEqualToComparingFieldByFieldRecursively(new Time(1, 2, 3));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"2:00", "02:00"})
+  void canParseTimeWithoutUnits_minutes(String input) {
+    // given
+    List<Token> tokens = lexer.lex(input);
+    TimeParser parser = new TimeParser(tokens);
+
+    // when
+    Time time = parser.time();
+
+    // then
+    assertThat(time).isEqualToComparingFieldByFieldRecursively(new Time(0, 2, 0));
   }
 }
