@@ -536,6 +536,7 @@ These representations can be concatenated together, with the bigger unit always 
 12h30
 3mn30
 2'55"
+123h12s
 ```
 
 
