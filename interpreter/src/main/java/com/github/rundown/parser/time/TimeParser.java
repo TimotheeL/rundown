@@ -1,24 +1,24 @@
-package com.github.rundown.parser;
+package com.github.rundown.parser.time;
 
-import static com.github.rundown.lexer.token.TokenType.COLON;
-import static com.github.rundown.lexer.token.TokenType.HOUR;
-import static com.github.rundown.lexer.token.TokenType.MINUTE;
-import static com.github.rundown.lexer.token.TokenType.NUMBER;
-import static com.github.rundown.lexer.token.TokenType.SECOND;
+import static com.github.rundown.lexer.TokenType.COLON;
+import static com.github.rundown.lexer.TokenType.HOUR;
+import static com.github.rundown.lexer.TokenType.MINUTE;
+import static com.github.rundown.lexer.TokenType.NUMBER;
+import static com.github.rundown.lexer.TokenType.SECOND;
 
-import com.github.rundown.lexer.token.Token;
-import com.github.rundown.lexer.token.TokenType;
+import com.github.rundown.lexer.Token;
+import com.github.rundown.lexer.TokenType;
 import com.github.rundown.parser.Expression.Time;
+import com.github.rundown.parser.Parser;
+import com.github.rundown.parser.RundownParsingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-public class TimeParser extends WorkoutParser {
+public class TimeParser {
+  private final Parser parser;
 
-  private final static Set<TokenType> TIME_UNITS = Set.of(HOUR, MINUTE, SECOND);
-
-  public TimeParser(List<Token> tokens) {
-    super(tokens);
+  public TimeParser(Parser parser) {
+    this.parser = parser;
   }
 
   public Time time() {
@@ -29,6 +29,13 @@ public class TimeParser extends WorkoutParser {
     return timeWithoutUnits();
   }
 
+  /*
+  * Parses a time of the form 00h00mn00s
+  *
+  * @return a Time object
+  * @return null if no match is found
+  * @throws TimeFormatException if the time is not in the correct format (e.g too many or too little digit)
+  */
   private Time timeWithUnits() {
     Token hour = timeWithUnits(HOUR);
     Token minute = timeWithUnits(MINUTE);
@@ -41,7 +48,7 @@ public class TimeParser extends WorkoutParser {
     Token trailingTime = trailingTime();
 
     if (trailingTime != null && second != null) {
-      throw new TimeFormatException("Unexpected token: " + trailingTime.value() + " at position: " + trailingTime.startPosition());
+      throw new RundownParsingException(trailingTime);
     }
 
     if (minute == null && second == null) {
@@ -55,16 +62,30 @@ public class TimeParser extends WorkoutParser {
     return new Time(mapNumberTokenToInt(hour), mapNumberTokenToInt(minute), mapNumberTokenToInt(second));
   }
 
+  /*
+   * Parses a time of the form 00:00:00
+   *
+   * @return a Time object
+   * @return null if no time is found
+   * @throws TimeFormatException if the time is not in the correct format (e.g too many or too little parts)
+   */
   private Time timeWithoutUnits() {
     List<Token> times = new ArrayList<>();
-    if (match(NUMBER)) {
-      if (match(COLON)) {
-        backtrack();
-        times.add(previous());
-        while (match(COLON) && match(NUMBER)) {
-          times.add(previous());
+    int current = parser.getCurrent();
+    if (parser.match(NUMBER)) {
+      if (parser.match(COLON)) {
+        parser.setCurrent(parser.getCurrent() - 1);
+        times.add(parser.previous());
+        while (parser.match(COLON) && parser.match(NUMBER)) {
+          times.add(parser.previous());
         }
+      } else {
+        parser.setCurrent(current);
+        return null;
       }
+    } else {
+      parser.setCurrent(current);
+      return null;
     }
 
     validateTimeWithoutUnits(times);
@@ -79,23 +100,20 @@ public class TimeParser extends WorkoutParser {
 
   private Token trailingTime() {
     Token time = null;
-    if (match(NUMBER)) {
-      if (!match(TIME_UNITS)) {
-        time = previous();
-      }
+    if (parser.match(NUMBER)) {
+      time = parser.previous();
     }
     return time;
   }
 
   private Token timeWithUnits(TokenType timeUnit) {
-    if (match(TokenType.NUMBER)) {
-      Token time = previous();
-      if (match(timeUnit)) {
+    if (parser.match(TokenType.NUMBER)) {
+      Token time = parser.previous();
+      if (parser.match(timeUnit)) {
         return time;
       }
-      backtrack();
+      parser.setCurrent(parser.getCurrent() - 1);
     }
-
     return null;
   }
 

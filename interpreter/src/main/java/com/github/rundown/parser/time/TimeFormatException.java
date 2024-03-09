@@ -1,4 +1,4 @@
-package com.github.rundown.parser;
+package com.github.rundown.parser.time;
 
 public class TimeFormatException extends RuntimeException {
 

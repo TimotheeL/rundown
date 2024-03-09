@@ -1,7 +1,5 @@
 package com.github.rundown.lexer;
 
-import com.github.rundown.lexer.token.Token;
-import com.github.rundown.lexer.token.TokenType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -15,10 +13,6 @@ public class Lexer {
     int position = 0;
     while (position < input.length()) {
       Token token = findToken(input, position);
-      if (token.type() == TokenType.WHITE_SPACE) {
-        position += token.value().length();
-        continue;
-      }
       tokens.add(token);
       position += token.value().length();
     }

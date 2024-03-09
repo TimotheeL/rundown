@@ -1,101 +1,100 @@
 package com.github.rundown.parser;
 
-import static com.github.rundown.lexer.token.TokenType.COMMA;
-import static com.github.rundown.lexer.token.TokenType.EOF;
-import static com.github.rundown.lexer.token.TokenType.EQUAL;
-import static com.github.rundown.lexer.token.TokenType.HOUR;
-import static com.github.rundown.lexer.token.TokenType.KILOMETER;
-import static com.github.rundown.lexer.token.TokenType.METER;
-import static com.github.rundown.lexer.token.TokenType.MILE;
-import static com.github.rundown.lexer.token.TokenType.MINUTE;
-import static com.github.rundown.lexer.token.TokenType.MULTIPLIER;
-import static com.github.rundown.lexer.token.TokenType.NUMBER;
-import static com.github.rundown.lexer.token.TokenType.RECOVERY_JOG;
-import static com.github.rundown.lexer.token.TokenType.RECOVERY_STATIC;
-import static com.github.rundown.lexer.token.TokenType.RECOVERY_WALK;
-import static com.github.rundown.lexer.token.TokenType.SECOND;
-import static com.github.rundown.lexer.token.TokenType.SEMICOLON;
-import static com.github.rundown.lexer.token.TokenType.YARD;
+import static com.github.rundown.lexer.TokenType.EOF;
+import static com.github.rundown.lexer.TokenType.EQUAL;
+import static com.github.rundown.lexer.TokenType.KILOMETER;
+import static com.github.rundown.lexer.TokenType.MULTIPLIER;
+import static com.github.rundown.lexer.TokenType.NUMBER;
 
-import com.github.rundown.lexer.token.Token;
-import com.github.rundown.lexer.token.TokenType;
+import com.github.rundown.lexer.Token;
 import com.github.rundown.parser.Expression.Recovery;
 import com.github.rundown.parser.Expression.Rep;
 import com.github.rundown.parser.Expression.Section;
 import com.github.rundown.parser.Expression.Set;
 import com.github.rundown.parser.Expression.Workout;
+import com.github.rundown.parser.distance.DistanceParser;
+import com.github.rundown.parser.metadata.MetadataParser;
+import com.github.rundown.parser.time.TimeParser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkoutParser extends AbstractParser<Workout> {
+public class WorkoutParser {
 
-  java.util.Set<TokenType> DISTANCE_UNITS = java.util.Set.of(METER, MILE, KILOMETER, YARD);
-  java.util.Set<TokenType> TIME_UNITS = java.util.Set.of(SECOND, MINUTE, HOUR);
+  private final Parser parser;
+  private final TimeParser timeParser;
+  private final DistanceParser distanceParser;
+  private final MetadataParser metadataParser;
 
-  public WorkoutParser(List<Token> tokens) {
-    super(tokens);
+  public WorkoutParser(
+      Parser parser,
+      TimeParser timeParser,
+      DistanceParser distanceParser,
+      MetadataParser metadataParser) {
+    this.parser = parser;
+    this.timeParser = timeParser;
+    this.distanceParser = distanceParser;
+    this.metadataParser = metadataParser;
   }
 
-  @Override
   public Workout parse() {
     List<Section> sections = new ArrayList<>();
     sections.add(section());
-    while (peek().type() != EOF) {
+    while (parser.peek().type() != EOF) {
       sections.add(section());
     }
     return new Workout(sections);
   }
 
   private Section section() {
-    Set set = set();
-    match(COMMA);
-    if (match(RECOVERY_JOG, RECOVERY_STATIC, RECOVERY_WALK)) {
-      Recovery recovery = recovery();
-      match(SEMICOLON, EOF);
-      return new Section(set, recovery);
-    }
-    if (match(SEMICOLON, EOF)) {
-      return new Section(set, null);
-    }
+//    Set set = set();
+//    parser.match(COMMA);
+//    if (parser.match(RECOVERY_JOG, RECOVERY_STATIC, RECOVERY_WALK)) {
+//      Recovery recovery = recovery();
+//      parser.match(SEMICOLON, EOF);
+//      return new Section(set, recovery);
+//    }
+//    if (parser.match(SEMICOLON, EOF)) {
+//      return new Section(set, null);
+//    }
 
-    throw new RundownParsingException(peek());
+    throw new RundownParsingException(parser.peek());
   }
 
   private Set set() {
-    if (match(NUMBER)) {
-      int value = Integer.parseInt(previous().value());
-      if (match(MULTIPLIER)) {
+    if (parser.match(NUMBER)) {
+      int value = Integer.parseInt(parser.previous().value());
+      if (parser.match(MULTIPLIER)) {
         Rep rep = rep();
         List<Rep> reps = new ArrayList<>();
         for (int i = 0; i < value; i++) {
           reps.add(rep);
         }
-        return new Set(reps);
+        return null;
       }
     }
 
-    throw new RundownParsingException(peek());
+    throw new RundownParsingException(parser.peek());
   }
 
   private Rep rep() {
-    if (match(NUMBER)) {
-      Token value = previous();
-      if (match(DISTANCE_UNITS) || match(TIME_UNITS)) {
-        return new Rep(value, previous());
+    if (parser.match(NUMBER)) {
+      Token value = parser.previous();
+      if (parser.match(KILOMETER)) {
+        return null; // new Rep(value, parser.previous());
       }
     }
 
-    throw new RundownParsingException(peek());
+    throw new RundownParsingException(parser.peek());
   }
 
   private Recovery recovery() {
-    Token type = previous();
+    Token type = parser.previous();
 
-    if (match(EQUAL)) {
+    if (parser.match(EQUAL)) {
       Rep recoveryRep = rep();
       return new Recovery(type, recoveryRep);
     }
 
-    throw new RundownParsingException(peek());
+    throw new RundownParsingException(parser.peek());
   }
 }

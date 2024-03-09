@@ -1,14 +1,20 @@
-package com.github.rundown.lexer.token;
+package com.github.rundown.lexer;
 
 public enum TokenType {
   COLON(":"),
   COMMA(","),
   EQUAL("="),
   EOF(null),
+  FLOAT("\\d+\\.\\d+"),
+  KEYWORD("cooldown|CD|downhill|easy|hard|hilly|"
+      + "steady|strides|tempo|threshold|track|uphillwarmup|WU"),
   HOUR("h"),
   KILOMETER("km|k"),
+  KILOMETER_QUALIFIED("Kilometer"),
   METER("m"),
+  METER_QUALIFIED("Meter"),
   MILE("M"),
+  MILE_QUALIFIED("Mile"),
   MINUTE("mn|'"),
   MULTIPLIER("x"),
   NUMBER("\\d+"),
@@ -20,7 +26,8 @@ public enum TokenType {
   SECOND("s|\""),
   SEMICOLON(";"),
   WHITE_SPACE("\\s+"),
-  YARD("yd");
+  YARD("yd"),
+  YARD_QUALIFIED("Yard");
 
   private final String regexPattern;
 

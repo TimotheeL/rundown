@@ -1,4 +1,4 @@
-package com.github.rundown.lexer.token;
+package com.github.rundown.lexer;
 
 public record Token(TokenType type, String value, int startPosition) {
 
