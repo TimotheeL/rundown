@@ -199,6 +199,8 @@ The target component for the above section is `@MP`, however a target (`@VO2max`
 | `{power}W`             | Running power, in Watt,. e.g `400W`                                   |
 | `{steps}spm`           | Running cadence, in steps per minute, e.g `180spm`                    |
 | `rpe{rate}`            | Rate of perceived exertion. `rate` is an integer between 1 and 10.    |
+
+
 \* There are different heart rate zone models. Rundown is not concerned with which one the runner uses. This interpretation is left to the runner, or to developers integrating with rundown if they have access to this information.
 
 ### Ranges and Progressions
