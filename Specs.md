@@ -143,6 +143,7 @@ Since metadata is only here for the benefit of the runner, rundown is not concer
 | `strides`        |
 | `tempo`          |
 | `threshold`      |
+| `treadmill`      |
 | `track`          |
 | `uphill`         |
 | `warmup`, `WU`   |
