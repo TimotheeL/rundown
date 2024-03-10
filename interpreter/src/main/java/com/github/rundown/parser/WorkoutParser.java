@@ -14,6 +14,7 @@ import com.github.rundown.parser.Expression.Set;
 import com.github.rundown.parser.Expression.Workout;
 import com.github.rundown.parser.distance.DistanceParser;
 import com.github.rundown.parser.metadata.MetadataParser;
+import com.github.rundown.parser.target.TargetParser;
 import com.github.rundown.parser.time.TimeParser;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,16 +25,20 @@ public class WorkoutParser {
   private final TimeParser timeParser;
   private final DistanceParser distanceParser;
   private final MetadataParser metadataParser;
+  private final TargetParser targetParser;
 
   public WorkoutParser(
       Parser parser,
       TimeParser timeParser,
       DistanceParser distanceParser,
-      MetadataParser metadataParser) {
+      MetadataParser metadataParser,
+      TargetParser targetParser
+  ) {
     this.parser = parser;
     this.timeParser = timeParser;
     this.distanceParser = distanceParser;
     this.metadataParser = metadataParser;
+    this.targetParser = targetParser;
   }
 
   public Workout parse() {

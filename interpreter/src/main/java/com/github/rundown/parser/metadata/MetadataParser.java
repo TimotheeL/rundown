@@ -29,7 +29,7 @@ public class MetadataParser {
   }
 
   public Metadata metadata() {
-    List<Token> keywords = new ArrayList();
+    List<Token> keywords = new ArrayList<>();
     while (parser.match(KEYWORD)) {
       keywords.add(parser.previous());
       parser.match(WHITE_SPACE);

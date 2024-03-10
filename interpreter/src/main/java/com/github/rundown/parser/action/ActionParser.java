@@ -1,9 +1,7 @@
 package com.github.rundown.parser.action;
 
 import com.github.rundown.lexer.TokenType;
-import com.github.rundown.parser.Expression;
 import com.github.rundown.parser.Expression.Action;
-import com.github.rundown.parser.Expression.Distance;
 import com.github.rundown.parser.Expression.Section;
 import com.github.rundown.parser.Expression.Set;
 import com.github.rundown.parser.Expression.Time;
@@ -42,7 +40,7 @@ public class ActionParser {
         parser.match(TokenType.WHITE_SPACE);
         timeOrDistance = timeOrDistance();
         if (timeOrDistance != null) {
-          return new Set(multiplier, new Section(timeOrDistance, null, null));
+          return new Set(multiplier, new Section(timeOrDistance, null, null, null));
         }
       }
     }
@@ -56,11 +54,6 @@ public class ActionParser {
       return time;
     }
 
-    Distance distance = distanceParser.distance();
-    if (distance != null) {
-      return distance;
-    }
-
-    return null;
+    return distanceParser.distance();
   }
 }
