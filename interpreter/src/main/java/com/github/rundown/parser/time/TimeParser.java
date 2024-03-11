@@ -72,20 +72,14 @@ public class TimeParser {
   private Time timeWithoutUnits() {
     List<Token> times = new ArrayList<>();
     int current = parser.getCurrent();
-    if (parser.match(NUMBER)) {
-      if (parser.match(COLON)) {
-        parser.setCurrent(parser.getCurrent() - 1);
-        times.add(parser.previous());
-        while (parser.match(COLON) && parser.match(NUMBER)) {
-          times.add(parser.previous());
-        }
-      } else {
-        parser.setCurrent(current);
-        return null;
-      }
-    } else {
+    if (!parser.match(NUMBER) || !parser.match(COLON)) {
       parser.setCurrent(current);
       return null;
+    }
+    parser.setCurrent(parser.getCurrent() - 1);
+    times.add(parser.previous());
+    while (parser.match(COLON) && parser.match(NUMBER)) {
+      times.add(parser.previous());
     }
 
     validateTimeWithoutUnits(times);

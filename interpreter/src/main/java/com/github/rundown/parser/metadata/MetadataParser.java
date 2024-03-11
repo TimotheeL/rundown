@@ -1,9 +1,9 @@
 package com.github.rundown.parser.metadata;
 
-import static com.github.rundown.lexer.TokenType.KEYWORD;
 import static com.github.rundown.lexer.TokenType.MULTIPLIER;
 import static com.github.rundown.lexer.TokenType.NUMBER;
 import static com.github.rundown.lexer.TokenType.WHITE_SPACE;
+import static com.github.rundown.parser.TokenGroups.KEYWORDS;
 
 import com.github.rundown.lexer.Token;
 import com.github.rundown.parser.Expression.Metadata;
@@ -29,33 +29,43 @@ public class MetadataParser {
   }
 
   public Metadata metadata() {
-    List<Token> keywords = new ArrayList<>();
-    while (parser.match(KEYWORD)) {
-      keywords.add(parser.previous());
-      parser.match(WHITE_SPACE);
-    }
-    if (keywords.isEmpty()) {
+    if (!parser.match(KEYWORDS)) {
       return null;
     }
+
+    List<Token> keywords = new ArrayList<>();
+    keywords.add(parser.previous());
+
+    while (parser.match(WHITE_SPACE) && parser.match(KEYWORDS)) {
+      keywords.add(parser.previous());
+    }
+
+    if (parser.previous().type() == WHITE_SPACE) {
+      parser.setCurrent(parser.getCurrent() - 1);
+    }
+
     return new Metadata(keywords);
   }
 
   private MetadataMultiple metadataMultiple() {
     int current = parser.getCurrent();
-    if (parser.match(NUMBER)) {
-      int multiplier = Integer.parseInt(parser.previous().value());
-      parser.match(WHITE_SPACE);
-      if (parser.match(MULTIPLIER)) {
-        parser.match(WHITE_SPACE);
-        Metadata metadata = metadata();
-        if (metadata == null) {
-          parser.setCurrent(current);
-          return null;
-        }
-        return new MetadataMultiple(multiplier, metadata.keywords);
-      }
+
+    if (!parser.match(NUMBER)) {
+      return null;
     }
-    parser.setCurrent(current);
-    return null;
+
+    int multiplier = Integer.parseInt(parser.previous().value());
+    parser.match(WHITE_SPACE);
+    if (!parser.match(MULTIPLIER)) {
+      parser.setCurrent(current);
+      return null;
+    }
+    parser.match(WHITE_SPACE);
+    Metadata metadata = metadata();
+    if (metadata == null) {
+      parser.setCurrent(current);
+      return null;
+    }
+    return new MetadataMultiple(multiplier, metadata.keywords);
   }
 }

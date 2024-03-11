@@ -12,6 +12,7 @@ import com.github.rundown.parser.Expression.Pace;
 import com.github.rundown.parser.Expression.Speed;
 import com.github.rundown.parser.Expression.Target;
 import com.github.rundown.parser.Expression.TargetFixed;
+import com.github.rundown.parser.Expression.TargetRange;
 import com.github.rundown.parser.Expression.TargetValue;
 import com.github.rundown.parser.Expression.Time;
 import com.github.rundown.parser.Parser;
@@ -114,6 +115,45 @@ public class TargetParserTest {
         Arguments.of("@1mn10", new Time(0, 1, 10)),
         Arguments.of("@4:00", new Time(0, 4, 0)),
         Arguments.of("@2h", new Time(2, 0, 0))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("targetRanges")
+  void canParseTargetRanges(String input, TargetRange expected) {
+    // given
+    setUpParser(input);
+
+    // when
+    Target target = underTest.target();
+
+    // then
+    assertThat(target).isEqualToComparingFieldByFieldRecursively(expected);
+  }
+
+  private static Set<Arguments> targetRanges() {
+    return Set.of(
+        Arguments.of(
+            "@4:40/km-4:50/km", new TargetRange(
+                new TargetValue(TargetValueType.PACE, new Pace(new Time(0, 4, 40), DistanceUnit.KILOMETER)),
+                new TargetValue(TargetValueType.PACE, new Pace(new Time(0, 4, 50), DistanceUnit.KILOMETER)),
+                TargetRangeType.RANGE
+            )
+        ),
+        Arguments.of(
+            "@Z5>VO2max", new TargetRange(
+                new TargetValue(TargetValueType.ZONE, new IntegerValue(5)),
+                new TargetFixed(TargetFixedType.VO2_MAX),
+                TargetRangeType.PROGRESSION_REP
+            )
+        ),
+        Arguments.of(
+            "@130bpm>>150bpm", new TargetRange(
+                new TargetValue(TargetValueType.HEARTRATE, new IntegerValue(130)),
+                new TargetValue(TargetValueType.HEARTRATE, new IntegerValue(150)),
+                TargetRangeType.PROGRESSION_SET
+            )
+        )
     );
   }
 

@@ -40,10 +40,8 @@ public class DistanceParser {
     int current = parser.getCurrent();
     if (parser.match(NUMBER, FLOAT)) {
       Token distance = parser.previous();
-      if (parser.match(WHITE_SPACE)) {
-        if (parser.match(TokenGroups.DISTANCE_UNITS_QUALIFIED)) {
-          return new Distance(Double.parseDouble(distance.value()), DistanceUnit.fromTokenType(parser.previous().type()));
-        }
+      if (parser.match(WHITE_SPACE) && parser.match(TokenGroups.DISTANCE_UNITS_QUALIFIED)) {
+        return new Distance(Double.parseDouble(distance.value()), DistanceUnit.fromTokenType(parser.previous().type()));
       }
     }
     parser.setCurrent(current);

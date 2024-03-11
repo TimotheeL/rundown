@@ -70,7 +70,7 @@ public class TargetParser {
       return prefixedTargetValue(type);
     }
 
-    TargetValue value = postfixedTargetValue();
+    TargetValue value = suffixedTargetValue();
     if (value != null) {
       return value;
     }
@@ -123,7 +123,7 @@ public class TargetParser {
     };
   }
 
-  private TargetValue postfixedTargetValue() {
+  private TargetValue suffixedTargetValue() {
     int current = parser.getCurrent();
     Distance distance = distanceParser.distance();
     if (distance != null) {
@@ -136,7 +136,7 @@ public class TargetParser {
 
     if (parser.match(NUMBER)) {
       Token value = parser.previous();
-      if (parser.match(TokenGroups.POSTFIXED_TARGETS)) {
+      if (parser.match(TokenGroups.SUFFIXED_TARGETS)) {
         return new TargetValue(TargetValueType.fromTokenType(parser.previous().type()), new IntegerValue(Integer.parseInt(value.value())));
       }
     }
@@ -146,32 +146,32 @@ public class TargetParser {
   }
 
   private Speed speed() {
-    Distance distance = distanceParser.distance();
     int current = parser.getCurrent();
-    if (distance != null) {
-      if (parser.match(SLASH)) {
-        if (parser.match(TokenGroups.TIME_UNITS)) {
-          return new Speed(distance, TimeUnit.fromTokenType(parser.previous().type()));
-        }
-        throw new RundownParsingException(parser.peek());
-      }
+    Distance distance = distanceParser.distance();
+    if (distance == null || !parser.match(SLASH)) {
       parser.setCurrent(current);
+      return null;
     }
-    return null;
+
+    if (parser.match(TokenGroups.TIME_UNITS)) {
+      return new Speed(distance, TimeUnit.fromTokenType(parser.previous().type()));
+    }
+
+    throw new RundownParsingException(parser.peek());
   }
 
   private Pace pace() {
     int current = parser.getCurrent();
     Time time = timeParser.time();
-    if (time != null) {
-      if (parser.match(SLASH)) {
-        if (parser.match(TokenGroups.DISTANCE_UNITS)) {
-          return new Pace(time, DistanceUnit.fromTokenType(parser.previous().type()));
-        }
-        throw new RundownParsingException(parser.peek());
-      }
+    if (time == null || !parser.match(SLASH)) {
       parser.setCurrent(current);
+      return null;
     }
-    return null;
+
+    if (parser.match(TokenGroups.DISTANCE_UNITS)) {
+      return new Pace(time, DistanceUnit.fromTokenType(parser.previous().type()));
+    }
+
+    throw new RundownParsingException(parser.peek());
   }
 }

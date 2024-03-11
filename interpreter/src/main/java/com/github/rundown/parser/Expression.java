@@ -1,8 +1,8 @@
 package com.github.rundown.parser;
 
 import com.github.rundown.lexer.Token;
-import com.github.rundown.lexer.TokenType;
 import com.github.rundown.parser.distance.DistanceUnit;
+import com.github.rundown.parser.recovery.RecoveryType;
 import com.github.rundown.parser.target.TargetFixedType;
 import com.github.rundown.parser.target.TargetRangeType;
 import com.github.rundown.parser.target.TargetValueType;
@@ -12,7 +12,6 @@ import java.util.List;
 public abstract class Expression {
 
   public interface Visitor<R> {
-    R visitExpression(Expression expression);
     R visitWorkout(Workout workout);
     R visitSection(Section section);
     R visitAction(Action action);
@@ -158,12 +157,12 @@ public abstract class Expression {
   }
 
   public static final class Recovery extends Expression {
-    public final TokenType type;
-    public final Rep recoveryRep;
+    public final RecoveryType type;
+    public final Section section;
 
-    public Recovery(TokenType type, Rep recoveryRep) {
+    public Recovery(RecoveryType type, Section section) {
       this.type = type;
-      this.recoveryRep = recoveryRep;
+      this.section = section;
     }
 
     @Override

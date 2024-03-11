@@ -14,8 +14,8 @@ import com.github.rundown.parser.Expression.Section;
 import com.github.rundown.parser.Expression.Set;
 import com.github.rundown.parser.Expression.Speed;
 import com.github.rundown.parser.Expression.Target;
-import com.github.rundown.parser.Expression.TargetRange;
 import com.github.rundown.parser.Expression.TargetFixed;
+import com.github.rundown.parser.Expression.TargetRange;
 import com.github.rundown.parser.Expression.TargetValue;
 import com.github.rundown.parser.Expression.Time;
 import com.github.rundown.parser.Expression.Visitor;
@@ -35,17 +35,8 @@ public class WorkoutPrinter implements Visitor<String> {
     return expression.accept(this);
   }
 
-  @Override
   public String visitExpression(Expression expression) {
-    return switch (expression) {
-      case Workout workout -> visitWorkout(workout);
-      case Section section -> visitSection(section);
-      case Action action -> visitAction(action);
-      case Metadata metadata -> visitMetadata(metadata);
-      case Target target -> visitTarget(target);
-      case Recovery recovery -> visitRecovery(recovery);
-      default -> "";
-    };
+    return expression.accept(this);
   }
 
   @Override
@@ -61,22 +52,22 @@ public class WorkoutPrinter implements Visitor<String> {
     String tabs = "\t".repeat(indentationLevel);
     indentationLevel++;
     if (section.action != null) {
-      sectionString += "Action:\n";
-      sectionString += tabs + "\t" + visitAction(section.action) + "\n";
+      sectionString += "\n" + tabs + "Action:\n";
+      sectionString += tabs + "\t" + visitAction(section.action);
     }
 
     if (section.metadata != null) {
-      sectionString += tabs + "Metadata:\n";
-      sectionString += tabs + "\t" + visitMetadata(section.metadata) + "\n";
+      sectionString += "\n" + tabs + "Metadata:\n";
+      sectionString += tabs + "\t" + visitMetadata(section.metadata);
     }
 
     if (section.target != null) {
-      sectionString += tabs + "Target:\n";
-      sectionString += tabs + "\t" + visitTarget(section.target) + "\n";
+      sectionString += "\n" + tabs + "Target:\n";
+      sectionString += tabs + "\t" + visitTarget(section.target);
     }
 
     if (section.recovery != null) {
-      sectionString += tabs + "Recovery:\n";
+      sectionString += "\n" + tabs + "Recovery:\n";
       sectionString += tabs + "\t" + visitRecovery(section.recovery);
     }
 
@@ -175,13 +166,12 @@ public class WorkoutPrinter implements Visitor<String> {
     }
 
     String recoveryString = switch (recovery.type) {
-      case RECOVERY_JOG -> "Jog";
-      case RECOVERY_STATIC -> "Stay still";
-      case RECOVERY_WALK -> "Walk";
-      default -> "";
+      case JOG -> "Jog";
+      case STATIC -> "Stay still";
+      case WALK -> "Walk";
     };
 
-    return recoveryString + " " + this.visitRep(recovery.recoveryRep);
+    return recoveryString + " " + this.visitSection(recovery.section);
   }
 
   @Override

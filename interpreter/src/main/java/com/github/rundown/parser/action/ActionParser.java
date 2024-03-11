@@ -32,23 +32,29 @@ public class ActionParser {
     if (timeOrDistance != null) {
       return timeOrDistance;
     }
+    int current = parser.getCurrent();
 
-    if (parser.match(TokenType.NUMBER)) {
-      int multiplier = Integer.parseInt(parser.previous().value());
-      parser.match(TokenType.WHITE_SPACE);
-      if (parser.match(TokenType.MULTIPLIER)) {
-        parser.match(TokenType.WHITE_SPACE);
-        timeOrDistance = timeOrDistance();
-        if (timeOrDistance != null) {
-          return new Set(multiplier, new Section(timeOrDistance, null, null, null));
-        }
-      }
+    if (!parser.match(TokenType.NUMBER)) {
+      return null;
+    }
+    int multiplier = Integer.parseInt(parser.previous().value());
+    parser.match(TokenType.WHITE_SPACE);
+    if (!parser.match(TokenType.MULTIPLIER)) {
+      parser.setCurrent(current);
+      return null;
     }
 
-    throw new RundownParsingException(parser.peek());
+    parser.match(TokenType.WHITE_SPACE);
+    timeOrDistance = timeOrDistance();
+    if (timeOrDistance == null) {
+      parser.setCurrent(current);
+      return null;
+    }
+
+    return new Set(multiplier, new Section(timeOrDistance, null, null, null));
   }
 
-  private Action timeOrDistance() {
+  public Action timeOrDistance() {
     Time time = timeParser.time();
     if (time != null) {
       return time;
