@@ -15,7 +15,7 @@ import com.github.rundown.parser.Expression.Set;
 import com.github.rundown.parser.Expression.Speed;
 import com.github.rundown.parser.Expression.Target;
 import com.github.rundown.parser.Expression.TargetRange;
-import com.github.rundown.parser.Expression.TargetToken;
+import com.github.rundown.parser.Expression.TargetFixed;
 import com.github.rundown.parser.Expression.TargetValue;
 import com.github.rundown.parser.Expression.Time;
 import com.github.rundown.parser.Expression.Visitor;
@@ -132,7 +132,7 @@ public class WorkoutPrinter implements Visitor<String> {
   private String visitTarget(Target target) {
     return switch (target) {
       case TargetValue targetValue -> visitTargetValue(targetValue);
-      case TargetToken targetToken -> visitTargetToken(targetToken);
+      case TargetFixed targetFixed -> visitTargetFixed(targetFixed);
       case TargetRange targetRange -> visitTargetRange(targetRange);
       default -> "";
     };
@@ -144,12 +144,12 @@ public class WorkoutPrinter implements Visitor<String> {
   }
 
   @Override
-  public String visitTargetToken(TargetToken targetToken) {
-    return switch (targetToken.targetType) {
+  public String visitTargetFixed(TargetFixed targetFixed) {
+    return switch (targetFixed.targetType) {
       case HMP -> "Half Marathon Pace";
       case LT1 -> "Lactate Threshold 1";
       case LT2 -> "Lactate Threshold 2";
-      case MP -> "Marathon Pace";
+      // case MP -> "Marathon Pace";
       case TEMPO -> "Tempo";
       case VO2_MAX -> "VO2 Max";
       default -> "";
@@ -174,7 +174,7 @@ public class WorkoutPrinter implements Visitor<String> {
       return "";
     }
 
-    String recoveryString = switch (recovery.type.type()) {
+    String recoveryString = switch (recovery.type) {
       case RECOVERY_JOG -> "Jog";
       case RECOVERY_STATIC -> "Stay still";
       case RECOVERY_WALK -> "Walk";
@@ -196,12 +196,12 @@ public class WorkoutPrinter implements Visitor<String> {
 
   @Override
   public String visitPace(Pace pace) {
-    return visitTime(pace.time) + "/" + pace.distanceUnit.type();
+    return visitTime(pace.time) + "/" + pace.distanceUnit;
   }
 
   @Override
   public String visitSpeed(Speed speed) {
-    return visitDistance(speed.distance) + "/" + speed.timeUnit.type();
+    return visitDistance(speed.distance) + "/" + speed.timeUnit;
   }
 
   @Override

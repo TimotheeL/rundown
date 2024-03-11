@@ -12,17 +12,18 @@ import com.github.rundown.parser.Expression.IntegerValue;
 import com.github.rundown.parser.Expression.Pace;
 import com.github.rundown.parser.Expression.Speed;
 import com.github.rundown.parser.Expression.Target;
+import com.github.rundown.parser.Expression.TargetFixed;
 import com.github.rundown.parser.Expression.TargetRange;
-import com.github.rundown.parser.Expression.TargetRange.RangeType;
 import com.github.rundown.parser.Expression.TargetSinglePart;
-import com.github.rundown.parser.Expression.TargetToken;
 import com.github.rundown.parser.Expression.TargetValue;
 import com.github.rundown.parser.Expression.Time;
 import com.github.rundown.parser.Parser;
 import com.github.rundown.parser.RundownParsingException;
 import com.github.rundown.parser.TokenGroups;
 import com.github.rundown.parser.distance.DistanceParser;
+import com.github.rundown.parser.distance.DistanceUnit;
 import com.github.rundown.parser.time.TimeParser;
+import com.github.rundown.parser.time.TimeUnit;
 
 public class TargetParser {
   private final Parser parser;
@@ -43,18 +44,28 @@ public class TargetParser {
       if (range != null) {
         return range;
       }
-      return targetSinglePart();
+      TargetSinglePart targetSinglePart = targetSinglePart();
+      if (targetSinglePart != null) {
+        return targetSinglePart;
+      }
+      throw new RundownParsingException(parser.peek());
     }
-
     return null;
   }
 
   private TargetSinglePart targetSinglePart() {
-    if (parser.match(TokenGroups.TARGET_TOKENS)) {
-      return new TargetToken(parser.previous().type());
+    if (parser.match(TokenGroups.TARGETS_SINGLE_TOKEN)) {
+      return new TargetFixed(TargetFixedType.fromTokenType(parser.previous().type()));
     }
 
-    if (parser.match(TokenGroups.PREFIXED_TARGET_TOKENS)) {
+    if (parser.match(TokenType.M)) {
+      if (parser.match(RACE_PACE)) {
+        return new TargetFixed(TargetFixedType.MP);
+      }
+      throw new RundownParsingException(parser.peek());
+    }
+
+    if (parser.match(TokenGroups.PREFIXED_TARGETS)) {
       Token type = parser.previous();
       return prefixedTargetValue(type);
     }
@@ -66,17 +77,17 @@ public class TargetParser {
 
     Speed speed = speed();
     if (speed != null) {
-      return new TargetValue(TargetValue.Type.SPEED, speed);
+      return new TargetValue(TargetValueType.SPEED, speed);
     }
 
     Pace pace = pace();
     if (pace != null) {
-      return new TargetValue(TargetValue.Type.PACE, pace);
+      return new TargetValue(TargetValueType.PACE, pace);
     }
 
     Time time = timeParser.time();
     if (time != null) {
-      return new TargetValue(TargetValue.Type.TIME, time);
+      return new TargetValue(TargetValueType.TIME, time);
     }
 
     return null;
@@ -90,7 +101,7 @@ public class TargetParser {
         TokenType separator = parser.previous().type();
         TargetSinglePart secondPart = targetSinglePart();
         if (secondPart != null) {
-          return new TargetRange(firstPart, secondPart, RangeType.fromTokenType(separator));
+          return new TargetRange(firstPart, secondPart, TargetRangeType.fromTokenType(separator));
         }
         throw new RundownParsingException(parser.peek());
       }
@@ -101,10 +112,10 @@ public class TargetParser {
 
   private TargetValue prefixedTargetValue(Token type) {
     return switch (type.type()) {
-      case GAP -> new TargetValue(TargetValue.Type.fromTokenType(type.type()), pace());
+      case GAP -> new TargetValue(TargetValueType.fromTokenType(type.type()), pace());
       case RPE, ZONE -> {
         if (parser.match(TokenType.NUMBER)) {
-          yield new TargetValue(TargetValue.Type.fromTokenType(type.type()), new IntegerValue(Integer.parseInt(parser.previous().value())));
+          yield new TargetValue(TargetValueType.fromTokenType(type.type()), new IntegerValue(Integer.parseInt(parser.previous().value())));
         }
         throw new RundownParsingException(parser.peek());
       }
@@ -117,7 +128,7 @@ public class TargetParser {
     Distance distance = distanceParser.distance();
     if (distance != null) {
       if (parser.match(RACE_PACE)) {
-        return new TargetValue(TargetValue.Type.RACE_PACE, distance);
+        return new TargetValue(TargetValueType.RACE_PACE, distance);
       }
       parser.setCurrent(current);
       return null;
@@ -125,8 +136,8 @@ public class TargetParser {
 
     if (parser.match(NUMBER)) {
       Token value = parser.previous();
-      if (parser.match(TokenGroups.POSTFIXED_TARGET_TOKENS)) {
-        return new TargetValue(TargetValue.Type.fromTokenType(parser.previous().type()), new IntegerValue(Integer.parseInt(value.value())));
+      if (parser.match(TokenGroups.POSTFIXED_TARGETS)) {
+        return new TargetValue(TargetValueType.fromTokenType(parser.previous().type()), new IntegerValue(Integer.parseInt(value.value())));
       }
     }
 
@@ -140,7 +151,7 @@ public class TargetParser {
     if (distance != null) {
       if (parser.match(SLASH)) {
         if (parser.match(TokenGroups.TIME_UNITS)) {
-          return new Speed(distance, parser.previous());
+          return new Speed(distance, TimeUnit.fromTokenType(parser.previous().type()));
         }
         throw new RundownParsingException(parser.peek());
       }
@@ -155,7 +166,7 @@ public class TargetParser {
     if (time != null) {
       if (parser.match(SLASH)) {
         if (parser.match(TokenGroups.DISTANCE_UNITS)) {
-          return new Pace(time, parser.previous());
+          return new Pace(time, DistanceUnit.fromTokenType(parser.previous().type()));
         }
         throw new RundownParsingException(parser.peek());
       }

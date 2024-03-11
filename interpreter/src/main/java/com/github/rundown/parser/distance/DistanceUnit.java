@@ -14,7 +14,7 @@ public enum DistanceUnit {
     return switch (type) {
       case KILOMETER, KILOMETER_QUALIFIED -> KILOMETER;
       case METER, METER_QUALIFIED -> METER;
-      case MILE, MILE_QUALIFIED -> MILE;
+      case M, MILE_QUALIFIED -> MILE;
       case YARD, YARD_QUALIFIED -> YARD;
       default -> throw new IllegalArgumentException(format("Token type %s is not a distance unit", type));
     };

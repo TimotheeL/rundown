@@ -3,6 +3,10 @@ package com.github.rundown.parser;
 import com.github.rundown.lexer.Token;
 import com.github.rundown.lexer.TokenType;
 import com.github.rundown.parser.distance.DistanceUnit;
+import com.github.rundown.parser.target.TargetFixedType;
+import com.github.rundown.parser.target.TargetRangeType;
+import com.github.rundown.parser.target.TargetValueType;
+import com.github.rundown.parser.time.TimeUnit;
 import java.util.List;
 
 public abstract class Expression {
@@ -16,7 +20,7 @@ public abstract class Expression {
     R visitRep(Rep rep);
     R visitMetadata(Metadata metadata);
     R visitTargetValue(TargetValue targetValue);
-    R visitTargetToken(TargetToken targetToken);
+    R visitTargetFixed(TargetFixed targetFixed);
     R visitTargetRange(TargetRange targetRange);
     R visitRecovery(Recovery recovery);
     R visitTime(Time time);
@@ -107,24 +111,24 @@ public abstract class Expression {
   public static abstract class TargetSinglePart extends Target {
   }
 
-  public static class TargetToken extends TargetSinglePart {
-    public final TokenType targetType;
+  public static class TargetFixed extends TargetSinglePart {
+    public final TargetFixedType targetType;
 
-    public TargetToken(TokenType targetType) {
+    public TargetFixed(TargetFixedType targetType) {
       this.targetType = targetType;
     }
 
     @Override
     public <R> R accept(Visitor<R> visitor) {
-      return visitor.visitTargetToken(this);
+      return visitor.visitTargetFixed(this);
     }
   }
 
   public static final class TargetValue extends TargetSinglePart {
-    public final Type type;
+    public final TargetValueType type;
     public final Expression value;
 
-    public TargetValue(Type type, Expression value) {
+    public TargetValue(TargetValueType type, Expression value) {
       this.type = type;
       this.value = value;
     }
@@ -134,39 +138,14 @@ public abstract class Expression {
       return visitor.visitTargetValue(this);
     }
 
-    public enum Type {
-      GAP,
-      HEARTRATE,
-      PACE,
-      RACE_PACE,
-      POWER,
-      RPE,
-      SPEED,
-      STEPS,
-      TIME,
-      ZONE;
-
-      public static Type fromTokenType(TokenType tokenType) {
-        return switch (tokenType) {
-          case GAP -> GAP;
-          case BPM -> HEARTRATE;
-          case RACE_PACE -> RACE_PACE;
-          case WATTS -> POWER;
-          case RPE -> RPE;
-          case SPM -> STEPS;
-          case ZONE -> ZONE;
-          default -> throw new IllegalArgumentException("Invalid token type: " + tokenType);
-        };
-      }
-    }
   }
 
   public static final class TargetRange extends Target {
     public final TargetSinglePart lowerBound;
     public final TargetSinglePart upperBound;
-    public final RangeType type;
+    public final TargetRangeType type;
 
-    public TargetRange(TargetSinglePart lowerBound, TargetSinglePart upperBound, RangeType type) {
+    public TargetRange(TargetSinglePart lowerBound, TargetSinglePart upperBound, TargetRangeType type) {
       this.lowerBound = lowerBound;
       this.upperBound = upperBound;
       this.type = type;
@@ -176,28 +155,13 @@ public abstract class Expression {
     public <R> R accept(Visitor<R> visitor) {
       return visitor.visitTargetRange(this);
     }
-
-    public enum RangeType {
-      RANGE,
-      PROGRESSION_REP,
-      PROGRESSION_SET;
-
-      public static RangeType fromTokenType(TokenType tokenType) {
-        return switch (tokenType) {
-          case MINUS -> RANGE;
-          case PROGRESSION_REP -> PROGRESSION_REP;
-          case PROGRESSION_SET -> PROGRESSION_SET;
-          default -> throw new IllegalArgumentException("Invalid token type: " + tokenType);
-        };
-      }
-    }
   }
 
   public static final class Recovery extends Expression {
-    public final Token type;
+    public final TokenType type;
     public final Rep recoveryRep;
 
-    public Recovery(Token type, Rep recoveryRep) {
+    public Recovery(TokenType type, Rep recoveryRep) {
       this.type = type;
       this.recoveryRep = recoveryRep;
     }
@@ -242,9 +206,9 @@ public abstract class Expression {
 
   public static final class Pace extends Expression {
     public final Time time;
-    public final Token distanceUnit;
+    public final DistanceUnit distanceUnit;
 
-    public Pace(Time time, Token distanceUnit) {
+    public Pace(Time time, DistanceUnit distanceUnit) {
       this.time = time;
       this.distanceUnit = distanceUnit;
     }
@@ -257,9 +221,9 @@ public abstract class Expression {
 
   public static final class Speed extends Expression {
     public final Distance distance;
-    public final Token timeUnit;
+    public final TimeUnit timeUnit;
 
-    public Speed(Distance distance, Token timeUnit) {
+    public Speed(Distance distance, TimeUnit timeUnit) {
       this.distance = distance;
       this.timeUnit = timeUnit;
     }

@@ -97,7 +97,7 @@ public class WorkoutParser {
 
     if (parser.match(EQUAL)) {
       Rep recoveryRep = rep();
-      return new Recovery(type, recoveryRep);
+      return new Recovery(type.type(), recoveryRep);
     }
 
     throw new RundownParsingException(parser.peek());
