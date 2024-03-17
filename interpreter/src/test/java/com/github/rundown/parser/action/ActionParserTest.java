@@ -1,11 +1,8 @@
 package com.github.rundown.parser.action;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.github.rundown.lexer.Lexer;
 import com.github.rundown.lexer.Token;
 import com.github.rundown.parser.Parser;
-import com.github.rundown.parser.RundownParsingException;
 import com.github.rundown.parser.distance.DistanceParser;
 import com.github.rundown.parser.time.TimeParser;
 import java.util.List;

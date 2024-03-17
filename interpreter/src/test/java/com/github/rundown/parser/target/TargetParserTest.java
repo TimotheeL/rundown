@@ -21,7 +21,6 @@ import com.github.rundown.parser.distance.DistanceParser;
 import com.github.rundown.parser.distance.DistanceUnit;
 import com.github.rundown.parser.time.TimeParser;
 import com.github.rundown.parser.time.TimeUnit;
-import com.github.rundown.util.WorkoutPrinter;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,9 +52,7 @@ public class TargetParserTest {
     Target target = underTest.target();
 
     // then
-    System.out.println(new WorkoutPrinter().print(target));
-    System.out.println(new WorkoutPrinter().print(expected));
-    assertThat(target).isEqualToComparingFieldByFieldRecursively(expected);
+    assertThat(target).usingRecursiveComparison().isEqualTo(expected);
   }
 
   private static Set<Arguments> targetValues() {
@@ -91,7 +88,7 @@ public class TargetParserTest {
     Target target = underTest.target();
 
     // then
-    assertThat(target).isEqualToComparingFieldByFieldRecursively(new TargetValue(TargetValueType.TIME, expectedTime));
+    assertThat(target).usingRecursiveComparison().isEqualTo(new TargetValue(TargetValueType.TIME, expectedTime));
   }
 
   private static Set<Arguments> targetTimes() {
@@ -113,7 +110,7 @@ public class TargetParserTest {
     Target target = underTest.target();
 
     // then
-    assertThat(target).isEqualToComparingFieldByFieldRecursively(expected);
+    assertThat(target).usingRecursiveComparison().isEqualTo(expected);
   }
 
   private static Set<Arguments> targetRanges() {

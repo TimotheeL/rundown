@@ -32,7 +32,7 @@ public class DistanceParserTest {
     Distance distance = underTest.distance();
 
     // then
-    assertThat(distance).isEqualToComparingFieldByFieldRecursively(
+    assertThat(distance).usingRecursiveComparison().isEqualTo(
         new Distance(3, DistanceUnit.KILOMETER)
     );
   }
@@ -46,7 +46,7 @@ public class DistanceParserTest {
     Distance distance = underTest.distance();
 
     // then
-    assertThat(distance).isEqualToComparingFieldByFieldRecursively(
+    assertThat(distance).usingRecursiveComparison().isEqualTo(
         new Distance(13.1, DistanceUnit.MILE)
     );
   }
@@ -60,7 +60,7 @@ public class DistanceParserTest {
     Distance distance = underTest.distance();
 
     // then
-    assertThat(distance).isEqualToComparingFieldByFieldRecursively(
+    assertThat(distance).usingRecursiveComparison().isEqualTo(
         new Distance(400, DistanceUnit.METER)
     );
   }
@@ -80,7 +80,7 @@ public class DistanceParserTest {
     // so we should be able to parse the input with another parser
     TimeParser timeParser = new TimeParser(parser);
 
-    assertThat(timeParser.time()).isEqualToComparingFieldByFieldRecursively(
+    assertThat(timeParser.time()).usingRecursiveComparison().isEqualTo(
         new Time(0, 400, 0)
     );
   }

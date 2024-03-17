@@ -1,10 +1,8 @@
 package com.github.rundown.parser;
 
 import static com.github.rundown.lexer.TokenType.COMMA;
-import static com.github.rundown.lexer.TokenType.EOF;
 import static com.github.rundown.lexer.TokenType.SEMICOLON;
 import static com.github.rundown.lexer.TokenType.WHITE_SPACE;
-import static java.lang.String.format;
 
 import com.github.rundown.parser.Expression.Action;
 import com.github.rundown.parser.Expression.Metadata;
@@ -52,57 +50,35 @@ public class WorkoutParser {
 
   private Section section() {
     parser.match(WHITE_SPACE);
-    SectionBuilder sectionBuilder = new SectionBuilder();
-    Expression component = nextComponent();
-    if (component instanceof Target) {
-      throw new RuntimeException("Target is not allowed as the main component of a section");
-    }
-    int componentOrder = getComponentOrder(component);
-    sectionBuilder = addComponentToSection(sectionBuilder, component);
-
-    while (!sectionEnd()) {
-      if (!componentSeparator()) {
-        throw new RundownParsingException(parser.peek());
-      }
-      component = nextComponent();
-      int nextComponentOrder = getComponentOrder(component);
-      if (nextComponentOrder <= componentOrder) {
-        throw new RuntimeException("Components must be in the order: Action, Metadata, Target, Recovery");
-      }
-      componentOrder = nextComponentOrder;
-      sectionBuilder = addComponentToSection(sectionBuilder, component);
-    }
-    return sectionBuilder.build();
-  }
-
-  private Expression nextComponent() {
     Action action = actionParser.action();
-    if (action != null) {
-      return action;
+    if (action != null && !matchSectionEnd()) {
+      matchComponentSeparator();
     }
     Metadata metadata = metadataParser.mainMetadata();
-    if (metadata != null) {
-      return metadata;
+    if (metadata != null && !matchSectionEnd()) {
+      matchComponentSeparator();
     }
     Target target = targetParser.target();
-    if (target != null) {
-      return target;
+    if (target != null && !matchSectionEnd()) {
+      matchComponentSeparator();
     }
     Recovery recovery = recoveryParser.recovery();
-    if (recovery != null) {
-      return recovery;
+    if (!matchSectionEnd()) {
+      throw new RundownParsingException(parser.peek());
     }
-    throw new IllegalStateException(format("Unable to identify workout component starting with %s", parser.peek()));
+    Section section = new Section(action, metadata, target, recovery);
+    validateSection(section);
+    return section;
   }
 
-  private boolean componentSeparator() {
+  private boolean matchComponentSeparator() {
     boolean matched = parser.match(WHITE_SPACE);
     matched |= parser.match(COMMA);
     parser.match(WHITE_SPACE);
     return matched;
   }
 
-  private boolean sectionEnd() {
+  private boolean matchSectionEnd() {
     int current = parser.getCurrent();
     parser.match(WHITE_SPACE);
     boolean sectionEnd = parser.isAtEnd() || parser.match(SEMICOLON);
@@ -112,23 +88,13 @@ public class WorkoutParser {
     return sectionEnd;
   }
 
-  private int getComponentOrder(Expression component) {
-    return switch (component) {
-      case Action ignored -> 1;
-      case Metadata ignored -> 2;
-      case Target ignored -> 3;
-      case Recovery ignored -> 4;
-      default -> throw new IllegalArgumentException("Unexpected value: " + component);
-    };
-  }
+  private void validateSection(Section section) {
+    if (section.action == null && section.metadata == null && section.target == null && section.recovery == null) {
+      throw new RundownSemanticException("A section must have at least one component");
+    }
 
-  private SectionBuilder addComponentToSection(SectionBuilder sectionBuilder, Expression component) {
-    return switch (component) {
-      case Action action -> sectionBuilder.action(action);
-      case Metadata metadata -> sectionBuilder.metadata(metadata);
-      case Target target -> sectionBuilder.target(target);
-      case Recovery recovery -> sectionBuilder.recovery(recovery);
-      case null, default -> throw new IllegalArgumentException("Unexpected value: " + component);
-    };
+    if (section.action == null && section.metadata == null && section.target != null) {
+      throw new RundownSemanticException("Target is not allowed as the main component of a section");
+    }
   }
 }

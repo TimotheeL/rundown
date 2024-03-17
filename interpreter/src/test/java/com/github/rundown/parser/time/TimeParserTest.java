@@ -31,7 +31,7 @@ public class TimeParserTest {
     Time time = underTest.time();
 
     // then
-    assertThat(time).isEqualToComparingFieldByFieldRecursively(new Time(1, 2, 3));
+    assertThat(time).usingRecursiveComparison().isEqualTo(new Time(1, 2, 3));
   }
 
   @Test
@@ -43,7 +43,7 @@ public class TimeParserTest {
     Time time = underTest.time();
 
     // then
-    assertThat(time).isEqualToComparingFieldByFieldRecursively(
+    assertThat(time).usingRecursiveComparison().isEqualTo(
         new Time(
             1,
             0,
@@ -60,7 +60,7 @@ public class TimeParserTest {
     Time time = underTest.time();
 
     // then
-    assertThat(time).isEqualToComparingFieldByFieldRecursively(
+    assertThat(time).usingRecursiveComparison().isEqualTo(
         new Time(
             0,
             6,
@@ -77,7 +77,7 @@ public class TimeParserTest {
     Time time = underTest.time();
 
     // then
-    assertThat(time).isEqualToComparingFieldByFieldRecursively(
+    assertThat(time).usingRecursiveComparison().isEqualTo(
         new Time(
             0,
             6,
@@ -117,7 +117,7 @@ public class TimeParserTest {
     Time time = underTest.time();
 
     // then
-    assertThat(time).isEqualToComparingFieldByFieldRecursively(new Time(1, 2, 3));
+    assertThat(time).usingRecursiveComparison().isEqualTo(new Time(1, 2, 3));
   }
 
   @ParameterizedTest
@@ -130,6 +130,6 @@ public class TimeParserTest {
     Time time = underTest.time();
 
     // then
-    assertThat(time).isEqualToComparingFieldByFieldRecursively(new Time(0, 2, 0));
+    assertThat(time).usingRecursiveComparison().isEqualTo(new Time(0, 2, 0));
   }
 }

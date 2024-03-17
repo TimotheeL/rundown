@@ -75,13 +75,13 @@ public class RecoveryParser {
 
   private RecoverySection recoverySection() {
     Rep rep = actionParser.timeOrDistance();
-    parser.match(WHITE_SPACE);
-    parser.match(COMMA);
-    parser.match(WHITE_SPACE);
+    if (rep != null) {
+      componentSeparator();
+    }
     Metadata metadata = metadataParser.metadata();
-    parser.match(WHITE_SPACE);
-    parser.match(COMMA);
-    parser.match(WHITE_SPACE);
+    if (metadata != null) {
+      componentSeparator();
+    }
     Target target = targetParser.target();
     return new RecoverySection(rep, metadata, target);
   }
@@ -94,5 +94,12 @@ public class RecoveryParser {
     if (recovery.type == STATIC && recovery.section.rep instanceof Distance) {
       throw new RundownSemanticException("A distance can not be specified as the recovery action for static recoveries");
     }
+  }
+
+  private boolean componentSeparator() {
+    boolean matched = parser.match(WHITE_SPACE);
+    matched |= parser.match(COMMA);
+    parser.match(WHITE_SPACE);
+    return matched;
   }
 }
