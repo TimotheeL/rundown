@@ -22,7 +22,8 @@ class WorkoutParserTest {
       "6 x strides @3:00/km",
       "R=2mn",
       "5 x 2km , uphill , @4:40/km, R=1km",
-      "5 x 2km , uphill @4:40/km, R=1km ; 3 x 100m, R=100m"
+      "5 x 2km , uphill @4:40/km, R=1km ; 3 x 100m, R=100m",
+      "10 x 1mn @4:40/km-4:20/km, R=1mn"
   })
   void test(String input) {
     // given

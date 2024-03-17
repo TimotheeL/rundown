@@ -37,15 +37,4 @@ public class ActionParserTest {
     // - no exception is thrown
     underTest.action();
   }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"3 x R=1mn", "R=1mn"})
-  public void throwsOnInvalidAction(String input) {
-    // given
-    setUpParser(input);
-
-    // when
-    // then
-    assertThatThrownBy(() -> underTest.action()).isInstanceOf(RundownParsingException.class);
-  }
 }

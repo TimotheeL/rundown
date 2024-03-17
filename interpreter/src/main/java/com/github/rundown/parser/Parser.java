@@ -32,6 +32,20 @@ public class Parser {
     return false;
   }
 
+  public Token matchOrThrow(TokenType tokenType) {
+    if (!match(tokenType)) {
+      throw new RundownParsingException(peek());
+    }
+    return previous();
+  }
+
+  public Token matchOrThrow(Set<TokenType> tokenTypes) {
+    if (!match(tokenTypes)) {
+      throw new RundownParsingException(peek());
+    }
+    return previous();
+  }
+
   public boolean check(TokenType type) {
     if (isAtEnd()) return false;
     return peek().type() == type;

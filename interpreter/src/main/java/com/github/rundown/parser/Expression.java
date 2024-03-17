@@ -19,14 +19,16 @@ public abstract class Expression {
     R visitRep(Rep rep);
     R visitMetadata(Metadata metadata);
     R visitTargetValue(TargetValue targetValue);
-    R visitTargetFixed(TargetFixed targetFixed);
     R visitTargetRange(TargetRange targetRange);
     R visitRecovery(Recovery recovery);
+    R visitRecoverySection(RecoverySection recoverySection);
+    R visitTargetFixed(TargetFixed targetFixed);
     R visitTime(Time time);
     R visitDistance(Distance distance);
     R visitPace(Pace pace);
     R visitSpeed(Speed speed);
     R visitIntegerValue(IntegerValue integerValue);
+    R visitFloatValue(FloatValue floatValue);
   }
 
   public static final class Workout extends Expression {
@@ -107,23 +109,7 @@ public abstract class Expression {
   public static abstract class Target extends Expression {
   }
 
-  public static abstract class TargetSinglePart extends Target {
-  }
-
-  public static class TargetFixed extends TargetSinglePart {
-    public final TargetFixedType targetType;
-
-    public TargetFixed(TargetFixedType targetType) {
-      this.targetType = targetType;
-    }
-
-    @Override
-    public <R> R accept(Visitor<R> visitor) {
-      return visitor.visitTargetFixed(this);
-    }
-  }
-
-  public static final class TargetValue extends TargetSinglePart {
+  public static final class TargetValue extends Target {
     public final TargetValueType type;
     public final Expression value;
 
@@ -140,11 +126,11 @@ public abstract class Expression {
   }
 
   public static final class TargetRange extends Target {
-    public final TargetSinglePart lowerBound;
-    public final TargetSinglePart upperBound;
+    public final TargetValue lowerBound;
+    public final TargetValue upperBound;
     public final TargetRangeType type;
 
-    public TargetRange(TargetSinglePart lowerBound, TargetSinglePart upperBound, TargetRangeType type) {
+    public TargetRange(TargetValue lowerBound, TargetValue upperBound, TargetRangeType type) {
       this.lowerBound = lowerBound;
       this.upperBound = upperBound;
       this.type = type;
@@ -156,11 +142,11 @@ public abstract class Expression {
     }
   }
 
-  public static final class Recovery extends Expression {
+  public static class Recovery extends Expression {
     public final RecoveryType type;
-    public final Section section;
+    public final RecoverySection section;
 
-    public Recovery(RecoveryType type, Section section) {
+    public Recovery(RecoveryType type, RecoverySection section) {
       this.type = type;
       this.section = section;
     }
@@ -168,6 +154,31 @@ public abstract class Expression {
     @Override
     public <R> R accept(Visitor<R> visitor) {
       return visitor.visitRecovery(this);
+    }
+  }
+
+  public static final class RecoveryCycle extends Recovery {
+
+    public RecoveryCycle(RecoveryType type, RecoverySection section) {
+      super(type, section);
+    }
+  }
+
+  public static final class RecoverySection extends Expression {
+
+    public final Rep rep;
+    public final Metadata metadata;
+    public final Target target;
+
+    public RecoverySection(Rep rep, Metadata metadata, Target target) {
+      this.rep = rep;
+      this.metadata = metadata;
+      this.target = target;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitRecoverySection(this);
     }
   }
 
@@ -243,6 +254,32 @@ public abstract class Expression {
     @Override
     public <R> R accept(Visitor<R> visitor) {
       return visitor.visitIntegerValue(this);
+    }
+  }
+
+  public static final class FloatValue extends Expression {
+    public final double value;
+
+    public FloatValue(double value) {
+      this.value = value;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitFloatValue(this);
+    }
+  }
+
+  public static final class TargetFixed extends Expression {
+    public final TargetFixedType type;
+
+    public TargetFixed(TargetFixedType type) {
+      this.type = type;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitTargetFixed(this);
     }
   }
 

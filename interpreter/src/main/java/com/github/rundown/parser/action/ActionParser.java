@@ -2,11 +2,11 @@ package com.github.rundown.parser.action;
 
 import com.github.rundown.lexer.TokenType;
 import com.github.rundown.parser.Expression.Action;
+import com.github.rundown.parser.Expression.Rep;
 import com.github.rundown.parser.Expression.Section;
 import com.github.rundown.parser.Expression.Set;
 import com.github.rundown.parser.Expression.Time;
 import com.github.rundown.parser.Parser;
-import com.github.rundown.parser.RundownParsingException;
 import com.github.rundown.parser.distance.DistanceParser;
 import com.github.rundown.parser.time.TimeParser;
 
@@ -27,7 +27,7 @@ public class ActionParser {
   }
 
   public Action action() {
-    Action timeOrDistance = timeOrDistance();
+    Rep timeOrDistance = timeOrDistance();
 
     if (timeOrDistance != null) {
       return timeOrDistance;
@@ -54,7 +54,7 @@ public class ActionParser {
     return new Set(multiplier, new Section(timeOrDistance, null, null, null));
   }
 
-  public Action timeOrDistance() {
+  public Rep timeOrDistance() {
     Time time = timeParser.time();
     if (time != null) {
       return time;

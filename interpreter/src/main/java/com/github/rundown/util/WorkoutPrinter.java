@@ -4,11 +4,13 @@ import com.github.rundown.lexer.Token;
 import com.github.rundown.parser.Expression;
 import com.github.rundown.parser.Expression.Action;
 import com.github.rundown.parser.Expression.Distance;
+import com.github.rundown.parser.Expression.FloatValue;
 import com.github.rundown.parser.Expression.IntegerValue;
 import com.github.rundown.parser.Expression.Metadata;
 import com.github.rundown.parser.Expression.MetadataMultiple;
 import com.github.rundown.parser.Expression.Pace;
 import com.github.rundown.parser.Expression.Recovery;
+import com.github.rundown.parser.Expression.RecoverySection;
 import com.github.rundown.parser.Expression.Rep;
 import com.github.rundown.parser.Expression.Section;
 import com.github.rundown.parser.Expression.Set;
@@ -123,7 +125,6 @@ public class WorkoutPrinter implements Visitor<String> {
   private String visitTarget(Target target) {
     return switch (target) {
       case TargetValue targetValue -> visitTargetValue(targetValue);
-      case TargetFixed targetFixed -> visitTargetFixed(targetFixed);
       case TargetRange targetRange -> visitTargetRange(targetRange);
       default -> "";
     };
@@ -136,8 +137,8 @@ public class WorkoutPrinter implements Visitor<String> {
 
   @Override
   public String visitTargetFixed(TargetFixed targetFixed) {
-    return switch (targetFixed.targetType) {
-      case HMP -> "Half Marathon Pace";
+    return switch (targetFixed.type) {
+      case HM -> "Half Marathon Pace";
       case LT1 -> "Lactate Threshold 1";
       case LT2 -> "Lactate Threshold 2";
       // case MP -> "Marathon Pace";
@@ -171,7 +172,30 @@ public class WorkoutPrinter implements Visitor<String> {
       case WALK -> "Walk";
     };
 
-    return recoveryString + " " + this.visitSection(recovery.section);
+    return recoveryString + " " + this.visitRecoverySection(recovery.section);
+  }
+
+  @Override
+  public String visitRecoverySection(RecoverySection recoverySection) {
+    String sectionString = "";
+    String tabs = "\t".repeat(indentationLevel);
+    indentationLevel++;
+    if (recoverySection.rep != null) {
+      sectionString += "\n" + tabs + "Action:\n";
+      sectionString += tabs + "\t" + visitAction(recoverySection.rep);
+    }
+
+    if (recoverySection.metadata != null) {
+      sectionString += "\n" + tabs + "Metadata:\n";
+      sectionString += tabs + "\t" + visitMetadata(recoverySection.metadata);
+    }
+
+    if (recoverySection.target != null) {
+      sectionString += "\n" + tabs + "Target:\n";
+      sectionString += tabs + "\t" + visitTarget(recoverySection.target);
+    }
+    indentationLevel--;
+    return sectionString;
   }
 
   @Override
@@ -197,5 +221,10 @@ public class WorkoutPrinter implements Visitor<String> {
   @Override
   public String visitIntegerValue(IntegerValue integerValue) {
     return "" + integerValue.value;
+  }
+
+  @Override
+  public String visitFloatValue(FloatValue floatValue) {
+    return "" + floatValue.value;
   }
 }

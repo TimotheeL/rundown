@@ -21,6 +21,7 @@ import com.github.rundown.parser.distance.DistanceParser;
 import com.github.rundown.parser.distance.DistanceUnit;
 import com.github.rundown.parser.time.TimeParser;
 import com.github.rundown.parser.time.TimeUnit;
+import com.github.rundown.util.WorkoutPrinter;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,7 +44,7 @@ public class TargetParserTest {
   }
 
   @ParameterizedTest
-  @MethodSource("targetPacesAndSpeeds")
+  @MethodSource("targetValues")
   void canParseSingleTargetValues(String input, TargetValue expected) {
     // given
     setUpParser(input);
@@ -52,10 +53,12 @@ public class TargetParserTest {
     Target target = underTest.target();
 
     // then
+    System.out.println(new WorkoutPrinter().print(target));
+    System.out.println(new WorkoutPrinter().print(expected));
     assertThat(target).isEqualToComparingFieldByFieldRecursively(expected);
   }
 
-  private static Set<Arguments> targetPacesAndSpeeds() {
+  private static Set<Arguments> targetValues() {
     return Set.of(
         Arguments.of("@4:40/km", new TargetValue(TargetValueType.PACE, new Pace(new Time(0, 4, 40), DistanceUnit.KILOMETER))),
         Arguments.of("@6mn/M", new TargetValue(TargetValueType.PACE, new Pace(new Time(0, 6, 0), DistanceUnit.MILE))),
@@ -68,31 +71,13 @@ public class TargetParserTest {
         Arguments.of("@rpe10", new TargetValue(TargetValueType.RPE, new IntegerValue(10))),
         Arguments.of("@180spm", new TargetValue(TargetValueType.STEPS, new IntegerValue(180))),
         Arguments.of("@160bpm", new TargetValue(TargetValueType.HEARTRATE, new IntegerValue(160))),
-        Arguments.of("@Z5", new TargetValue(TargetValueType.ZONE, new IntegerValue(5)))
-    );
-  }
-
-  @ParameterizedTest
-  @MethodSource("targetTokens")
-  void canParseTargetTokens(String input, TargetFixedType type) {
-    // given
-    setUpParser(input);
-
-    // when
-    Target target = underTest.target();
-
-    // then
-    assertThat(target).isEqualToComparingFieldByFieldRecursively(new TargetFixed(type));
-  }
-
-  private static Set<Arguments> targetTokens() {
-    return Set.of(
-        Arguments.of("@VO2max", TargetFixedType.VO2_MAX),
-        Arguments.of("@tempo", TargetFixedType.TEMPO),
-        Arguments.of("@LT1", TargetFixedType.LT1),
-        Arguments.of("@LT2", TargetFixedType.LT2),
-        Arguments.of("@MP", TargetFixedType.MP),
-        Arguments.of("@HMP", TargetFixedType.HMP)
+        Arguments.of("@Z5", new TargetValue(TargetValueType.ZONE, new IntegerValue(5))),
+        Arguments.of("@VO2max", new TargetValue(TargetValueType.FIXED, new TargetFixed(TargetFixedType.VO2_MAX))),
+        Arguments.of("@tempo", new TargetValue(TargetValueType.FIXED, new TargetFixed(TargetFixedType.TEMPO))),
+        Arguments.of("@LT1", new TargetValue(TargetValueType.FIXED, new TargetFixed(TargetFixedType.LT1))),
+        Arguments.of("@LT2", new TargetValue(TargetValueType.FIXED, new TargetFixed(TargetFixedType.LT2))),
+        Arguments.of("@MP", new TargetValue(TargetValueType.RACE_PACE, new TargetFixed(TargetFixedType.M))),
+        Arguments.of("@HMP", new TargetValue(TargetValueType.RACE_PACE, new TargetFixed(TargetFixedType.HM)))
     );
   }
 
@@ -143,7 +128,7 @@ public class TargetParserTest {
         Arguments.of(
             "@Z5>VO2max", new TargetRange(
                 new TargetValue(TargetValueType.ZONE, new IntegerValue(5)),
-                new TargetFixed(TargetFixedType.VO2_MAX),
+                new TargetValue(TargetValueType.FIXED, new TargetFixed(TargetFixedType.VO2_MAX)),
                 TargetRangeType.PROGRESSION_REP
             )
         ),
@@ -151,6 +136,55 @@ public class TargetParserTest {
             "@130bpm>>150bpm", new TargetRange(
                 new TargetValue(TargetValueType.HEARTRATE, new IntegerValue(130)),
                 new TargetValue(TargetValueType.HEARTRATE, new IntegerValue(150)),
+                TargetRangeType.PROGRESSION_SET
+            )
+        ),
+        Arguments.of(
+            "@Z(3-4)", new TargetRange(
+                new TargetValue(TargetValueType.ZONE, new IntegerValue(3)),
+                new TargetValue(TargetValueType.ZONE, new IntegerValue(4)),
+                TargetRangeType.RANGE
+            )
+        ),
+        Arguments.of(
+            "@rpe(7>9)", new TargetRange(
+                new TargetValue(TargetValueType.RPE, new IntegerValue(7)),
+                new TargetValue(TargetValueType.RPE, new IntegerValue(9)),
+                TargetRangeType.PROGRESSION_REP
+            )
+        ),
+        Arguments.of(
+            "@gap(4:40-4:20)/km", new TargetRange(
+                new TargetValue(TargetValueType.GAP, new Pace(new Time(0, 4, 40), DistanceUnit.KILOMETER)),
+                new TargetValue(TargetValueType.GAP, new Pace(new Time(0, 4, 20), DistanceUnit.KILOMETER)),
+                TargetRangeType.RANGE
+            )
+        ),
+        Arguments.of(
+            "@(4mn40>4mn20)/km", new TargetRange(
+                new TargetValue(TargetValueType.PACE, new Pace(new Time(0, 4, 40), DistanceUnit.KILOMETER)),
+                new TargetValue(TargetValueType.PACE, new Pace(new Time(0, 4, 20), DistanceUnit.KILOMETER)),
+                TargetRangeType.PROGRESSION_REP
+            )
+        ),
+        Arguments.of(
+            "@(150-155)bpm", new TargetRange(
+                new TargetValue(TargetValueType.HEARTRATE, new IntegerValue(150)),
+                new TargetValue(TargetValueType.HEARTRATE, new IntegerValue(155)),
+                TargetRangeType.RANGE
+            )
+        ),
+        Arguments.of(
+            "@(55-60)s", new TargetRange(
+                new TargetValue(TargetValueType.TIME, new Time(0, 0, 55)),
+                new TargetValue(TargetValueType.TIME, new Time(0, 0, 60)),
+                TargetRangeType.RANGE
+            )
+        ),
+        Arguments.of(
+            "@(12.5>>14)km/h", new TargetRange(
+                new TargetValue(TargetValueType.SPEED, new Speed(new Distance(12.5, DistanceUnit.KILOMETER), TimeUnit.HOUR)),
+                new TargetValue(TargetValueType.SPEED, new Speed(new Distance(14.0, DistanceUnit.KILOMETER), TimeUnit.HOUR)),
                 TargetRangeType.PROGRESSION_SET
             )
         )

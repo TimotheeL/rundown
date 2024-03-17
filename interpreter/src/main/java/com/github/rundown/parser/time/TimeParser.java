@@ -69,7 +69,7 @@ public class TimeParser {
    * @return null if no time is found
    * @throws TimeFormatException if the time is not in the correct format (e.g too many or too little parts)
    */
-  private Time timeWithoutUnits() {
+  public Time timeWithoutUnits() {
     List<Token> times = new ArrayList<>();
     int current = parser.getCurrent();
     if (!parser.match(NUMBER) || !parser.match(COLON)) {

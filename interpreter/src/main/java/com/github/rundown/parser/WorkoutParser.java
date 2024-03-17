@@ -4,6 +4,7 @@ import static com.github.rundown.lexer.TokenType.COMMA;
 import static com.github.rundown.lexer.TokenType.EOF;
 import static com.github.rundown.lexer.TokenType.SEMICOLON;
 import static com.github.rundown.lexer.TokenType.WHITE_SPACE;
+import static java.lang.String.format;
 
 import com.github.rundown.parser.Expression.Action;
 import com.github.rundown.parser.Expression.Metadata;
@@ -91,7 +92,7 @@ public class WorkoutParser {
     if (recovery != null) {
       return recovery;
     }
-    throw new RundownParsingException(parser.peek());
+    throw new IllegalStateException(format("Unable to identify workout component starting with %s", parser.peek()));
   }
 
   private boolean componentSeparator() {

@@ -7,7 +7,7 @@ import static com.github.rundown.lexer.TokenType.EASY;
 import static com.github.rundown.lexer.TokenType.GAP;
 import static com.github.rundown.lexer.TokenType.HARD;
 import static com.github.rundown.lexer.TokenType.HILLY;
-import static com.github.rundown.lexer.TokenType.HMP;
+import static com.github.rundown.lexer.TokenType.HM;
 import static com.github.rundown.lexer.TokenType.HOUR;
 import static com.github.rundown.lexer.TokenType.KILOMETER;
 import static com.github.rundown.lexer.TokenType.KILOMETER_QUALIFIED;
@@ -53,7 +53,8 @@ public interface TokenGroups {
   Set<TokenType> PREFIXED_TARGETS = Set.of(GAP, RPE, ZONE);
   Set<TokenType> RECOVERIES = Set.of(RECOVERY_JOG, RECOVERY_STATIC, RECOVERY_WALK);
   Set<TokenType> SUFFIXED_TARGETS = Set.of(BPM, SPM, WATTS);
-  Set<TokenType> TARGETS_SINGLE_TOKEN = Set.of(HMP, LT1, LT2, TEMPO, VO2_MAX);
+  Set<TokenType> TARGETS_SINGLE_TOKEN = Set.of(LT1, LT2, TEMPO, VO2_MAX);
+  Set<TokenType> TARGETS_SPECIFIC_DISTANCES = Set.of(HM, M);
   Set<TokenType> TIME_UNITS = Set.of(HOUR, MINUTE, SECOND);
   Set<TokenType> TARGET_RANGE_SEPARATORS = Set.of(MINUS, PROGRESSION_REP, PROGRESSION_SET);
 }

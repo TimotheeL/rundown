@@ -3,9 +3,9 @@ package com.github.rundown.parser.target;
 import static java.lang.String.format;
 
 import com.github.rundown.lexer.TokenType;
-import com.github.rundown.parser.Expression.TargetValue;
 
 public enum TargetValueType {
+  FIXED,
   GAP,
   HEARTRATE,
   PACE,

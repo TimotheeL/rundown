@@ -8,6 +8,12 @@ import java.util.regex.Pattern;
 
 public class Lexer {
 
+  /**
+   * Produces a list of tokens from an input string
+   *
+   * @param input the input string
+   * @return a list of tokens
+  */
   public List<Token> lex(String input) {
     ArrayList<Token> tokens = new ArrayList<>();
     int position = 0;
